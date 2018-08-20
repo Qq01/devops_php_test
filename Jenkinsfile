@@ -1,9 +1,10 @@
 pipeline {
     agent {
-        docker {
-            image 'php:7.2-apache'
-            args '-p 80:1234'
-        }
+        // docker {
+        //     image 'php:7.2-apache'
+        //     args '-p 80:1234'
+        // }
+        dockerfile true
     }
     environment {
         CI = 'true'
