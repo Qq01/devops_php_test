@@ -1,26 +1,24 @@
-pipeline {
-    agent {
-        // docker {
-        //     image 'php:7.2-apache'
-        //     args '-p 80:1234'
-        // }
-        dockerfile true
+node {
+    def app
+
+    stage("Clone repository") {
+        checkout scm
     }
-    environment {
-        CI = 'true'
+    
+    stage("Build image") {
+        app = docker.build("qq01/docker-example")
     }
-    stages {
-        stage('build') {
-            steps {
-                sh 'php --version'
-            }
+
+    stage("Test image") {
+        app.inside {
+            sh 'echo "Test passed"'
         }
-        stage('deliver') {
-            steps {
-                //sh './jenkins/scripts/deliver.sh'
-                input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                //sh './jenkins/scripts/kill.sh'
-            }
+    }
+    
+    stage("Push image") {
+        docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
         }
     }
 }
